@@ -19,6 +19,7 @@
 
 package org.apache.guacamole.rest.user;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,8 @@ import org.apache.guacamole.net.auth.Directory;
 import org.apache.guacamole.net.auth.UserContext;
 import org.apache.guacamole.net.auth.credentials.GuacamoleCredentialsException;
 import org.apache.guacamole.net.auth.simple.SimpleActivityRecordSet;
+import org.apache.guacamole.rest.auth.HashTokenSessionMap;
+import org.apache.guacamole.rest.auth.TokenSessionMap;
 import org.apache.guacamole.rest.directory.DirectoryObjectResource;
 import org.apache.guacamole.rest.directory.DirectoryObjectTranslator;
 import org.apache.guacamole.rest.history.UserHistoryResource;
@@ -47,6 +50,8 @@ import org.apache.guacamole.rest.permission.APIPermissionSet;
 import org.apache.guacamole.rest.permission.PermissionSetResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * A REST resource which abstracts the operations available on an existing
@@ -240,5 +245,30 @@ public class UserResource
     public RelatedObjectSetResource getUserGroups() throws GuacamoleException {
         return new RelatedObjectSetResource(user.getUserGroups());
     }
+
+
+
+    /**
+     * The map of auth tokens to sessions for the REST endpoints.
+     */
+    @Inject
+    private TokenSessionMap tokenSessionMap;
+
+
+    /**
+     * By David
+     *
+     *
+     */
+    @GET
+    @Path("getSharingKey")
+    public String getSharingKey() throws GuacamoleException {
+
+        ConcurrentMap sessionMap =  ((HashTokenSessionMap)tokenSessionMap).getSessionMap();
+
+        return "The sessionMap has " + sessionMap.size() + "sessions";
+    }
+
+
 
 }

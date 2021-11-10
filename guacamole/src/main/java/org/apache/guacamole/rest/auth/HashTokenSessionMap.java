@@ -56,6 +56,14 @@ public class HashTokenSessionMap implements TokenSessionMap {
             new ConcurrentHashMap<String, GuacamoleSession>();
 
     /**
+     * By  David
+     * */
+
+    public ConcurrentMap getSessionMap() {
+        return this.sessionMap;
+    }
+
+    /**
      * The session timeout for the Guacamole REST API, in minutes.
      */
     private final IntegerGuacamoleProperty API_SESSION_TIMEOUT =
