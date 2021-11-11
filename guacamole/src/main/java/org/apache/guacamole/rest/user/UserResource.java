@@ -272,12 +272,12 @@ public class UserResource
         for (Map.Entry<String, GuacamoleSession> elem : sessionMap.entrySet()) {
             GuacamoleSession session = elem.getValue();
             String username = session.getAuthenticatedUser().getCredentials().getUsername();
-            logger.debug("TESTING "+username+" vs "+this.user.getIdentifier());
+            logger.info("TESTING "+username+" vs "+this.user.getIdentifier());
             if (username.equals(this.user.getIdentifier())) {
                 if (!session.hasTunnels()) {
-                    return new UserTokenAndTunnel();
+                   continue;
                 }
-                logger.debug("Session has tunnels "+session.getTunnels().toString());
+                logger.info("Session has tunnels "+session.getTunnels().toString());
                 Map<String, UserTunnel> tunnels = session.getTunnels();
 
                 String tunnel_id = (String)tunnels.keySet().toArray()[0];
