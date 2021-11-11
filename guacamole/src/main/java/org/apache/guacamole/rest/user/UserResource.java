@@ -32,6 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import org.apache.guacamole.GuacamoleException;
 import org.apache.guacamole.GuacamoleSecurityException;
+import org.apache.guacamole.GuacamoleSession;
 import org.apache.guacamole.GuacamoleUnsupportedException;
 import org.apache.guacamole.net.auth.AuthenticationProvider;
 import org.apache.guacamole.net.auth.Credentials;
@@ -48,9 +49,11 @@ import org.apache.guacamole.rest.history.UserHistoryResource;
 import org.apache.guacamole.rest.identifier.RelatedObjectSetResource;
 import org.apache.guacamole.rest.permission.APIPermissionSet;
 import org.apache.guacamole.rest.permission.PermissionSetResource;
+import org.apache.guacamole.tunnel.UserTunnel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -261,12 +264,26 @@ public class UserResource
      *
      */
     @GET
-    @Path("getSharingKey")
-    public String getSharingKey() throws GuacamoleException {
+    @Path("getUserTokenAndTunnel")
+    public UserTokenAndTunnel getSharingKey() throws GuacamoleException {
 
-        ConcurrentMap sessionMap =  ((HashTokenSessionMap)tokenSessionMap).getSessionMap();
+        //
+        ConcurrentMap<String, GuacamoleSession> sessionMap =  ((HashTokenSessionMap)tokenSessionMap).getSessionMap();
+        for (Map.Entry<String, GuacamoleSession> elem : sessionMap.entrySet()) {
+            GuacamoleSession session = elem.getValue();
+            String username = session.getAuthenticatedUser().getCredentials().getUsername();
 
-        return "The sessionMap has " + sessionMap.size() + "sessions";
+            if (username.equals(this.user.getIdentifier())) {
+                if (!session.hasTunnels()) {
+                    return new UserTokenAndTunnel();
+                }
+                Map<String, UserTunnel> tunnels = session.getTunnels();
+
+                String tunnel_id = (String)tunnels.keySet().toArray()[0];
+                return new UserTokenAndTunnel(elem.getKey(),tunnel_id);
+            }
+        }
+        return new UserTokenAndTunnel();
     }
 
 
