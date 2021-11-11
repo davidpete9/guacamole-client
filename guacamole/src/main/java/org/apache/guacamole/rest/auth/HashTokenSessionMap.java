@@ -59,7 +59,7 @@ public class HashTokenSessionMap implements TokenSessionMap {
      * By  David
      * */
 
-    public ConcurrentMap getSessionMap() {
+    public ConcurrentMap<String, GuacamoleSession> getSessionMap() {
         return this.sessionMap;
     }
 
